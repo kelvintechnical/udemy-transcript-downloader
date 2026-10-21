@@ -1,0 +1,7 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Udemy download queue</title><link rel="stylesheet" href="style.css"></head>
+<body><main><h1>Udemy transcript queue</h1><p>Sign in to Udemy first. Add courses you are enrolled in and permitted to download. Keep this tab open. Interrupted work recovers paused.</p>
+<form id="add"><label for="urls">Course URLs (one per line)</label><textarea id="urls" rows="4" required placeholder="https://www.udemy.com/course/course-name/"></textarea><button>Add courses</button></form>
+<p><button id="current">Add current Udemy tab</button></p>
+<label for="concurrency">Simultaneous courses</label><select id="concurrency"><option value="1">1</option><option value="2" selected>2 (default)</option></select>
+<p><button id="pause">Pause all</button> <button id="resume">Resume all</button></p><p id="notice" role="status" aria-live="polite"></p><section id="jobs" aria-label="Course queue"></section></main><script type="module" src="main.ts"></script></body></html>
