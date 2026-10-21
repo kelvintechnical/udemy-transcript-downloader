@@ -9,10 +9,10 @@ import { sanitizeFileName, stringToBuffer } from './helpers';
  * @param courseTitle - The course title for file naming
  * @returns Promise that resolves when ZIP is generated and download triggered
  */
-export const generateZip = async (
+export const buildZip = async (
   curriculum: UdemyCurriculumItem[],
   courseTitle: string
-): Promise<void> => {
+): Promise<Uint8Array> => {
   const zipData: Record<string, Uint8Array> = {};
   const cleanTitle = sanitizeFileName(courseTitle);
 
@@ -45,26 +45,21 @@ export const generateZip = async (
   // Add merged file
   zipData[`${cleanTitle}_Full.md`] = stringToBuffer(mergedContent);
 
-  // Zipping with Promise wrapper for proper async flow
-  return new Promise<void>((resolve, reject) => {
-    zip(zipData, { level: 6 }, (err, data) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-
-      // Trigger Download
-      const blob = new Blob([new Uint8Array(data)], { type: 'application/zip' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${cleanTitle}_Transcripts.zip`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      resolve();
-    });
+  return new Promise<Uint8Array>((resolve, reject) => {
+    zip(zipData, { level: 6 }, (err, data) => err ? reject(err) : resolve(data));
   });
+};
+
+export const generateZip = async (curriculum: UdemyCurriculumItem[], courseTitle: string): Promise<void> => {
+  const data = await buildZip(curriculum, courseTitle);
+  const blob = new Blob([new Uint8Array(data)], { type: 'application/zip' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${sanitizeFileName(courseTitle)}_Transcripts.zip`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  // Give Chromium time to consume the object URL before releasing it.
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
 };

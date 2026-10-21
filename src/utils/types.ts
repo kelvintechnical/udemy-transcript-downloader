@@ -13,19 +13,3 @@ export interface UdemyCurriculumItem {
   isCompleted?: boolean;
   markdownContent?: string;
 }
-
-export interface ProcessingState {
-  status: 'idle' | 'running' | 'paused' | 'completed' | 'error';
-  courseId: number | null;
-  courseTitle: string;
-  totalLectures: number;
-  completedLectures: number;
-  currentTask: string;
-  logs: string[];
-  curriculum: UdemyCurriculumItem[];
-  lastUpdated: number;
-}
-
-export interface MessagePayload {
-  action: 'START' | 'PAUSE' | 'RESUME';
-}

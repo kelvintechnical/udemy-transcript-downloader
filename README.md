@@ -1,286 +1,91 @@
 # Udemy Transcript Downloader
 
-[![Version](https://img.shields.io/badge/version-0.1.0-orange)](https://github.com/InvictusNavarchus/udemy-transcript-downloader)
-[![License](https://img.shields.io/badge/license-MPL--2.0-green)](https://mozilla.org/MPL/2.0/)
-[![Built with WXT](https://img.shields.io/badge/built%20with-WXT-7c3aed)](https://wxt.dev/)
+WXT / TypeScript browser extension for downloading available English lecture captions from enrolled Udemy courses into chapter-organized Markdown ZIPs.
 
-A browser extension that enables you to download complete course transcripts from Udemy lectures as markdown files, organized by chapters and packaged into a convenient ZIP archive.
+## Two-course MVP
 
-## 🎯 Features
+- Add multiple course URLs, or add an open Udemy course tab.
+- Process up to **two courses concurrently** (default 2; choose 1 for single-course downloads).
+- Independent progress, errors, pause/resume, and ZIP exports per course.
+- Pause all / Resume all controls. Resume all resumes individually paused jobs too.
+- Recover interrupted jobs from local checkpoints; recovery is paused until Resume.
+- Paginated curricula and bounded, abortable HTTP retry/backoff.
+- A separate ZIP per course, with numbered chapter folders, lecture files, and a complete merged transcript. Missing English captions are marked explicitly.
 
-- **One-Click Download**: Start downloading all transcripts from a course with a single click
-- **Chapter Organization**: Transcripts are automatically organized into folders by chapter
-- **Pause & Resume**: Pause downloads mid-process and resume exactly where you left off
-- **ZIP Export**: All transcripts are bundled into a single ZIP file for easy distribution
-- **Merged Transcript**: Includes a full course transcript combining all lectures
-- **Real-Time Progress**: Live progress tracking shows exactly which lecture is being processed
-- **Robust Error Handling**: Gracefully handles missing transcripts and API errors
-- **Cross-Browser Support**: Works on Chrome/Edge and Firefox
-- **Lightweight & Efficient**: Random request delays prevent API rate limiting
+Use only courses you are enrolled in and have permission to download. Follow Udemy's applicable terms, API restrictions, and copyright requirements. The extension uses your browser session and does not bypass authentication or enrollment. Access failures stop the affected course.
 
-## 📋 How It Works
+## Development
 
-1. Navigate to any Udemy course lecture page (requires you to be enrolled)
-2. Click the extension icon in your toolbar to open the popup interface
-3. Click **"Start Download"** to begin fetching transcripts
-4. The extension:
-   - Extracts the course structure from the page
-   - Fetches captions from Udemy's API for each lecture
-   - Converts VTT format captions to readable markdown
-   - Organizes lectures by chapter
-   - Generates a ZIP file with individual chapter folders plus a merged full transcript
-5. The ZIP file automatically downloads to your default download folder
+Prerequisites: Node.js 22+ and Bun 1.3.1+. The checked-in `bun.lock` pins dependencies.
 
-### Data Flow
-
-```
-Lecture Page (Data Extraction)
-    ↓
-Curriculum Fetch (Course Structure)
-    ↓
-Transcript Loop (Per Lecture)
-    ├─ Caption Fetch (from Udemy API)
-    ├─ VTT → Markdown Conversion
-    ├─ Progress Update
-    └─ Local State Persistence
-    ↓
-ZIP Generation (File Organization)
-    ├─ Chapter Folders
-    ├─ Individual .md Files
-    └─ Full Transcript Merge
-    ↓
-Download Trigger
-```
-
-## 📥 Installation
-
-> [!IMPORTANT]
-> Chrome/Edge and Firefox: Not yet available on official extension stores. Use the manual installation steps below.
-
-<details>
-<summary>Click for manual installation instructions</summary>
-
-### Download from GitHub Releases
-
-#### For Google Chrome/Edge:
-
-1. Download the latest Chrome extension package from [GitHub Releases](https://github.com/InvictusNavarchus/udemy-transcript-downloader/releases/latest)
-2. Extract the downloaded ZIP file to a folder on your computer.
-3. Open Chrome/Edge and navigate to `chrome://extensions/`.
-4. Enable **Developer mode** (toggle in the top right).
-5. Click on **Load unpacked**.
-6. Select the extracted folder containing the extension files.
-
-#### For Mozilla Firefox:
-
-1. Download the latest Firefox extension package from [GitHub Releases](https://github.com/InvictusNavarchus/udemy-transcript-downloader/releases/latest)
-2. Extract the downloaded ZIP file to a folder on your computer.
-3. Open Firefox and navigate to `about:debugging#/runtime/this-firefox`.
-4. Click on **Load Temporary Add-on...**.
-5. Select the `manifest.json` file located inside the extracted folder.
-
-The extension icon should now appear in your browser's toolbar.
-
-</details>
-
-## 🛠️ Development
-
-<details>
-<summary>Click to see setup instructions and development guide</summary>
-
-### Prerequisites
-
-- [Bun](https://bun.sh/) - JavaScript runtime and package manager
-- Node.js 22+ (if not using Bun)
-- Git
-
-### Setup
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd udemy-transcript-downloader
-   ```
-
-2. **Install dependencies**
-   ```bash
-   bun install
-   ```
-
-3. **Start development server**
-   ```bash
-   bun run dev
-   ```
-   
-   For Firefox:
-   ```bash
-   bun run dev:firefox
-   ```
-
-### Project Structure
-
-```
-src/
-├── entrypoints/
-│   ├── content.ts              # Main content script - orchestrates downloads
-│   └── popup/
-│       ├── index.html          # Popup UI
-│       ├── main.ts             # Popup controller and state binding
-│       └── style.css           # Popup styling
-├── utils/
-│   ├── types.ts                # TypeScript interfaces
-│   ├── udemy-api.ts            # Udemy API integration
-│   ├── file-generator.ts       # ZIP file creation and download
-│   ├── storage.ts              # Persistent state management
-│   └── helpers.ts              # Utility functions
-└── assets/                     # Extension assets (icons, etc.)
-```
-
-### Available Commands
-
-| Command | Purpose |
-|---------|---------|
-| `bun run dev` | Start development with live reloading (Chrome/Edge) |
-| `bun run dev:firefox` | Start development for Firefox with MV3 |
-| `bun run build` | Build extension for production (Chrome/Edge) |
-| `bun run build:firefox` | Build extension for Firefox |
-| `bun run zip` | Create distributable ZIP (Chrome/Edge) |
-| `bun run zip:firefox` | Create distributable ZIP (Firefox) |
-| `bun run compile` | Type-check TypeScript (no emit) |
-
-### Type Checking
-
-Always check for type errors when making changes:
-
-```bash
+```sh
+bun install --frozen-lockfile
 bun run compile
+bun test
+bun run build
 ```
 
-### Technology Stack
+For live development: `bun run dev`. Production Chromium/Edge output is `.output/chrome-mv3`. `bun run build:firefox` creates `.output/firefox-mv3`; Firefox runtime behavior still needs manual validation. `bun run zip` creates the extension distribution package (separate from course transcript ZIPs).
 
-- **Language**: TypeScript 5.9+
-- **Framework**: [WXT](https://wxt.dev/) 0.20.6+ (Web Extension Framework)
-- **Runtime & Package Manager**: Bun 1.3.1+
-- **Compression**: [fflate](https://github.com/101arrowz/fflate) 0.8.2 (ZIP compression)
+In the prepared cloud environment, Bun is at `/workspace/.tools/udemy-bun/node_modules/.bin/bun`; use this absolute executable if Bun is not on PATH. No backend, API key, or cloud Udemy login is needed for development.
 
-</details>
+## Load the unpacked extension in Microsoft Edge
 
-## 📦 Architecture
+1. Build with `bun run build` and copy the `.output/chrome-mv3` directory to your local machine if building in the cloud.
+2. Open `edge://extensions`, enable **Developer mode**, select **Load unpacked**, and choose that directory (the one containing `manifest.json`).
+3. Sign in to Udemy normally in Edge and verify you can open both enrolled course learning pages.
+4. Click the extension icon, then **Open download queue**.
+5. Paste one or more `https://www.udemy.com/course/<course-name>/` URLs, one per line, and select **Add courses**. Alternatively choose **Add current Udemy tab**.
+6. Keep the queue tab open and the browser awake. Allow multiple downloads if Edge prompts. Each completed course requests its own ZIP download.
 
-### Entry Points
+Only one queue tab owns processing. A second tab explains that the queue is already open. Closing the queue tab or browser stops processing; reopen and select Resume to continue saved work. Failed courses can be retried after resolving the reported cause. Long server cooldowns require waiting before resuming.
 
-#### Content Script (`content.ts`)
-- Runs on Udemy course lecture pages (`*://www.udemy.com/course/*/learn/lecture/*`)
-- Orchestrates the entire download workflow
-- Implements pause/resume functionality through state management
-- Recoverable: saves state after each lecture for crash resilience
+Completed jobs have **Export ZIP again** to repeat the export without downloading captions. Export status indicates the ZIP request was issued; inspect your browser's download list to verify it was saved. Interruption at final export may produce a duplicate ZIP on resume.
 
-**Workflow**:
-1. Extract course ID and title from page DOM
-2. Fetch complete course curriculum
-3. Iterate through lectures and fetch transcripts
-4. Save progress to persistent storage after each lecture
-5. Generate ZIP file when complete
-6. Support pause/resume mid-process
+## Output
 
-#### Popup Script (`main.ts`)
-- Provides UI for user control (Start, Pause, Resume)
-- Displays real-time progress, current task, and status badge
-- Uses reactive storage watching for automatic UI updates
-- Sends messages to content script to trigger actions
-
-#### Popup UI (`index.html` + `style.css`)
-- Clean, minimal interface matching Udemy's design language
-- Progress bar with lecture counter
-- Status badge (Idle, Running, Paused, Completed, Error)
-- Current task description for transparency
-
-**API Endpoints**:
-- Curriculum: `https://www.udemy.com/api-2.0/courses/{courseId}/subscriber-curriculum-items/`
-- Transcripts: `https://www.udemy.com/api-2.0/users/me/subscribed-courses/{courseId}/lectures/{lectureId}/`
-
-### Endpoints Used
-
-1. **Curriculum Endpoint**
-   ```
-   GET /api-2.0/courses/{courseId}/subscriber-curriculum-items/
-   ```
-   Returns chapters, lectures, and quizzes with metadata
-
-2. **Lecture Endpoint**
-   ```
-   GET /api-2.0/users/me/subscribed-courses/{courseId}/lectures/{lectureId}/
-   ```
-   Returns asset details including caption URLs
-
-### Error Handling
-- Gracefully returns null for lectures without transcripts
-- Continues processing even if individual lecture fails
-- Logs errors for debugging without stopping the entire download
-
-## 🔒 Permissions
-
-The extension requests minimal permissions:
-
-| Permission | Purpose |
-|-----------|---------|
-| `storage` | Persist download state locally |
-| `activeTab` | Detect active Udemy page |
-| `host_permissions: https://www.udemy.com/*` | API access to Udemy services |
-
-No data is sent to external servers except Udemy's official API.
-
-## 💾 Auto Recover
-
-Downloads are fully recoverable via persistent storage:
-
-If the extension crashes or browser closes mid-download, users can click **Resume** to continue from the last completed lecture.
-
-## 📝 File Output Format
-
-### ZIP Structure
-```
-CourseTitle_Transcripts.zip
-├── 01_Chapter1/
-│   ├── 01_Lecture1.md
-│   ├── 02_Lecture2.md
-│   └── ...
-├── 02_Chapter2/
-│   ├── 01_Lecture1.md
-│   └── ...
-└── CourseTitle_Full.md
+```text
+CourseTitle_CourseID_Transcripts.zip
+├── 01_Chapter/
+│   ├── 01_Lecture.md
+│   └── 02_Lecture.md
+└── CourseTitle_CourseID_Full.md
 ```
 
-### Markdown Format
-- Clean, plain text with light markdown formatting
-- Timestamps and metadata removed for readability
-- Properly formatted for note-taking and searching
-- Compatible with all markdown viewers and note-taking apps
+Non-video lectures and quizzes are skipped. Video lectures without English captions get a placeholder. A failed HTTP request remains an error rather than being silently converted to a missing-caption placeholder.
 
+## Architecture and limits
 
-## ⚠️ Limitations
+See [architecture and initial audit](docs/architecture.md). Scheduling, API access, persistence, ZIP generation, and UI are separate modules. The dedicated extension tab owns a Web Lock and serialized writes, avoiding content-script races and MV3 worker lifetime assumptions.
 
-- **Enrollment Required**: Only works for courses you're enrolled in
-- **English Transcripts Only**: Currently extracts English captions only
-- **Video Lectures Only**: Skips non-video content (quizzes, documents)
-- **API Dependent**: Requires Udemy API availability (can be shutdown by Udemy at any time)
-- **Rate Limiting**: Random delays to prevent API throttling may increase download time
+The queue stores transcripts in extension-local storage. `unlimitedStorage` supports large courses subject to disk limits. Host access is restricted to Udemy and its caption CDN; no external application server receives transcripts. Old single-course state is preserved but not migrated. Remove extension storage to erase saved transcripts; individual job removal is not yet implemented.
 
-## 📄 License
+Concurrency above 2 is deliberately disabled. The roadmap to 5–10 requires memory/soak tests, more granular persistence, shared rate-limit controls, and authenticated browser lifecycle coverage. The current implementation stores full snapshots and builds ZIPs in memory.
 
-This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/
+## Validation
 
-## 🤝 Contributing
+Automated coverage uses synthetic, enrolled-style API responses, not a live Udemy account:
 
-Contributions are welcome! Feel free to:
+- Concurrent workers and queue draining; single-course mode.
+- Individual/global pause and rapid resume; interrupted checkpoints and course error isolation.
+- Storage failure stops new processing.
+- 429 / Retry-After, transient 5xx, bounded attempts, abort, and terminal authentication errors.
+- Curriculum pagination, English selection, and chapter/merged ZIP contents.
 
-1. Create a feature branch (`git checkout -b feature/amazing-feature`)
-2. Make your changes and ensure type safety
-3. Run type checking: `bun run compile`
-4. Commit with conventional commit messages: `feat:`, `fix:`, `docs:`, etc.
-5. Push and create a Pull Request
+See [validation results](docs/validation.md) for actual commands and outcomes. After building, `bun run test:browser` checks the production UI with mocked browser APIs and Udemy responses. It requires Chromium at `/usr/bin/chromium` or a `CHROMIUM_PATH` override; it does not load an actual extension or authenticate to Udemy.
 
-## 📚 Resources
+### Manual authenticated Edge checklist
 
-- [WXT Documentation](https://wxt.dev/) - Web extension framework
+- Load the unpacked Chromium build and add two enrolled courses with English captions.
+- Verify progress advances independently and both ZIPs contain complete chapters and merged transcripts; compare representative lectures with Udemy's displayed captions.
+- Test one course alone, then two together. Pause/resume one while the other runs, and pause/resume all.
+- Close/reopen the queue tab during a lecture; confirm recovery is paused and Resume retains saved work.
+- Open a second queue tab; confirm only one owner processes work.
+- Check permission/download prompts, refresh/restart behavior, and a course without English captions.
+- Verify signed-out and unenrolled courses fail clearly without exporting misleading incomplete ZIPs. Do not intentionally generate load to provoke live rate limits; use automated retry tests.
 
+Manual authentication and browser validation are required before calling live Udemy downloads verified. API markup or policies may change independently of the extension.
+
+## License
+
+[MPL-2.0](LICENSE). Based on [InvictusNavarchus/udemy-transcript-downloader](https://github.com/InvictusNavarchus/udemy-transcript-downloader).
