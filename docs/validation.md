@@ -19,4 +19,4 @@ Automated tests use synthetic API responses and no Udemy credentials. ZIP conten
 
 Repository source and lockfile changes are part of the explicitly requested feature implementation. Environment installation instructions are saved separately in the onboarding draft; saving does not publish the environment.
 
-GitHub API requests returned Forbidden despite successful HTTPS Git reads. This blocks automatic PR creation. The environment draft includes `api.github.com` as a requested network destination; it must be reviewed/saved to apply. API authentication/authorization will still need verification after network access is available.
+GitHub API requests initially returned Forbidden despite successful HTTPS Git reads. After adding `api.github.com` to the environment network draft and completing the branch push, draft PR creation succeeded: https://github.com/kelvintechnical/udemy-transcript-downloader/pull/1. The feature branch was pushed successfully; no default-branch merge was performed.
